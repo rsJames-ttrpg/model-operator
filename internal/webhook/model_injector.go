@@ -57,7 +57,7 @@ type injectionOptions struct {
 
 type ModelInjector struct {
 	Client  client.Client
-	decoder admission.Decoder
+	Decoder admission.Decoder
 }
 
 // Handle processes admission requests for pods
@@ -65,7 +65,7 @@ func (m *ModelInjector) Handle(ctx context.Context, req admission.Request) admis
 	log := logf.FromContext(ctx).WithName("model-injector")
 
 	pod := &corev1.Pod{}
-	if err := m.decoder.Decode(req, pod); err != nil {
+	if err := m.Decoder.Decode(req, pod); err != nil {
 		log.Error(err, "Failed to decode pod")
 		return admission.Errored(http.StatusBadRequest, err)
 	}
@@ -152,12 +152,6 @@ func (m *ModelInjector) Handle(ctx context.Context, req admission.Request) admis
 
 	log.Info("Successfully injected models into pod", "pod", req.Name)
 	return admission.PatchResponseFromRaw(req.Object.Raw, marshaledPod)
-}
-
-// InjectDecoder injects the decoder
-func (m *ModelInjector) InjectDecoder(d admission.Decoder) error {
-	m.decoder = d
-	return nil
 }
 
 // parseOptions extracts injection options from pod annotations

@@ -34,6 +34,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	modelsv1alpha1 "github.com/rsJames-ttrpg/model-operator/api/v1alpha1"
 	"github.com/rsJames-ttrpg/model-operator/internal/controller"
@@ -190,7 +191,8 @@ func main() {
 	// Register the model injector webhook
 	mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{
 		Handler: &modelwebhook.ModelInjector{
-			Client: mgr.GetClient(),
+			Client:  mgr.GetClient(),
+			Decoder: admission.NewDecoder(mgr.GetScheme()),
 		},
 	})
 	// +kubebuilder:scaffold:builder
