@@ -1,0 +1,11 @@
+apiVersion: models.main-currents.news/v1alpha1
+kind: Model
+metadata:
+  name: test-model
+spec:
+  source:
+    huggingFace:
+      repoId: sentence-transformers/all-MiniLM-L6-v2
+  storage:
+    storageClass: local-path
+    size: 1Gi

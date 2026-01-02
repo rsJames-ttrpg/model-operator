@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-server
+  annotations:
+    models.main-currents.news/inject: "llama-3-8b"
+spec:
+  containers:
+    - name: vllm
+      image: vllm/vllm-openai:latest
+      args: ["--model", "/models/llama-3-8b"]
+      resources:
+        limits:
+          nvidia.com/gpu: "1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-server
+  template:
+    metadata:
+      labels:
+        app: vllm-server
+      annotations:
+        models.main-currents.news/inject: "llama-3-8b"
+        models.main-currents.news/read-only: "true"
+    spec:
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          args: ["--model", "/models/llama-3-8b"]
+          resources:
+            limits:
+              nvidia.com/gpu: "1"

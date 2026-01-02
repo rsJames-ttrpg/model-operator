@@ -1,0 +1,15 @@
+apiVersion: models.main-currents.news/v1alpha1
+kind: Model
+metadata:
+  name: llama-3-8b
+  namespace: default
+spec:
+  source:
+    huggingFace:
+      repoId: meta-llama/Llama-3.1-8B-Instruct
+      revision: main
+  version: "3.1"
+  storage:
+    storageClass: longhorn
+    size: 20Gi
+  credentialsSecret: hf-credentials

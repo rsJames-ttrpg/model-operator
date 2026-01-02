@@ -8,4 +8,14 @@ layout:
 - go.kubebuilder.io/v4
 projectName: model-operator
 repo: github.com/rsJames-ttrpg/model-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: main-currents.news
+  group: models
+  kind: Model
+  path: github.com/rsJames-ttrpg/model-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

@@ -1,0 +1,16 @@
+apiVersion: models.main-currents.news/v1alpha1
+kind: Model
+metadata:
+  name: custom-model
+  namespace: default
+spec:
+  source:
+    s3:
+      bucket: my-models-bucket
+      key: models/custom-model/
+      region: us-east-1
+  version: "1.0"
+  storage:
+    storageClass: gp3
+    size: 10Gi
+  credentialsSecret: aws-credentials

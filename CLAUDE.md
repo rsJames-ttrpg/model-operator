@@ -8,7 +8,7 @@ Build a Kubernetes operator in Go that manages ML model files on PVCs with autom
 
 - **Language**: Go 1.22+
 - **Framework**: kubebuilder / controller-runtime
-- **API Group**: `models.example.com`
+- **API Group**: `models.main-currents.news`
 - **API Version**: `v1alpha1`
 - **Kind**: `Model`
 

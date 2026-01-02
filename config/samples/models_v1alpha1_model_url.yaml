@@ -1,0 +1,13 @@
+apiVersion: models.main-currents.news/v1alpha1
+kind: Model
+metadata:
+  name: gguf-model
+  namespace: default
+spec:
+  source:
+    url:
+      url: https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf
+  version: "2.0-Q4"
+  storage:
+    storageClass: longhorn
+    size: 5Gi

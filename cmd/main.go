@@ -34,6 +34,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	modelsv1alpha1 "github.com/rsJames-ttrpg/model-operator/api/v1alpha1"
+	"github.com/rsJames-ttrpg/model-operator/internal/controller"
+	modelwebhook "github.com/rsJames-ttrpg/model-operator/internal/webhook"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -45,6 +49,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
+	utilruntime.Must(modelsv1alpha1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -174,6 +179,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := (&controller.ModelReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Model")
+		os.Exit(1)
+	}
+
+	// Register the model injector webhook
+	mgr.GetWebhookServer().Register("/mutate-v1-pod", &webhook.Admission{
+		Handler: &modelwebhook.ModelInjector{
+			Client: mgr.GetClient(),
+		},
+	})
 	// +kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

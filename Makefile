@@ -112,6 +112,25 @@ build: manifests generate fmt vet ## Build manager binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./cmd/main.go
 
+WEBHOOK_CERT_DIR ?= /tmp/k8s-webhook-server/serving-certs
+
+.PHONY: run-local
+run-local: manifests generate fmt vet webhook-certs ## Run controller locally with self-signed certs.
+	go run ./cmd/main.go --health-probe-bind-address=:8083
+
+.PHONY: webhook-certs
+webhook-certs: ## Generate self-signed certs for local webhook testing.
+	@mkdir -p "$(WEBHOOK_CERT_DIR)"
+	@if [ ! -f "$(WEBHOOK_CERT_DIR)/tls.crt" ]; then \
+		echo "Generating self-signed webhook certificates..."; \
+		openssl req -x509 -newkey rsa:2048 \
+			-keyout "$(WEBHOOK_CERT_DIR)/tls.key" \
+			-out "$(WEBHOOK_CERT_DIR)/tls.crt" \
+			-days 365 -nodes -subj "/CN=localhost" 2>/dev/null; \
+	else \
+		echo "Webhook certificates already exist."; \
+	fi
+
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
