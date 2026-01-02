@@ -1,8 +1,28 @@
 # model-operator
-// TODO(user): Add simple overview of use/purpose
+A Kubernetes operator for declaratively managing ML models on PVCs with annotation-based injection into workloads.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+Managing ML model files in Kubernetes is often a manual process - downloading models to persistent storage, configuring PVC mounts, and keeping track of which models are where, or more inflexibly baking them into to containers creating large artifacts.
+This operator automates that workflow by introducing a `Model` custom resource that declaratively defines where to fetch models from and how to store them.
+
+When you create a Model resource, the operator provisions a PVC using your specified storage class (e.g., Longhorn, EBS, local-path) and spawns a Job to download the model files from the configured source. Supported sources include HuggingFace Hub, S3-compatible storage (AWS S3, MinIO, R2), and direct HTTP/HTTPS URLs. The operator tracks download progress and exposes status through standard Kubernetes conventions.
+
+To use a model in your workloads, simply add an annotation rather than manually configuring volumes:
+```yaml
+metadata:
+  annotations:
+    models.main-currents.news/inject: "llama-3-8b"
+```
+
+A mutating admission webhook intercepts pod creation, validates that the referenced models exist and are ready, then injects the appropriate volume mounts and environment variables containing model metadata. This decouples your deployment manifests from storage implementation details and provides a consistent interface for model access across your cluster.
+
+Key features:
+- **Declarative model management** - Models are Kubernetes resources with status tracking and garbage collection
+- **Multiple sources** - HuggingFace Hub, S3/MinIO, HTTP URLs with credential support via Secrets
+- **Annotation-based injection** - No manual PVC references in your workload specs
+- **Version tracking** - Explicit version field for model lifecycle management
+- **Failure recovery** - Automatic retry on download failures, manual retry by deleting the download Job
+
 
 ## Getting Started
 

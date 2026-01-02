@@ -1,0 +1,46 @@
+apiVersion: models.main-currents.news/v1alpha1
+kind: Model
+metadata:
+  name: llama-3-8b-custom
+  namespace: default
+spec:
+  source:
+    huggingFace:
+      repoId: meta-llama/Llama-3.1-8B-Instruct
+      revision: main
+      # Only download safetensors and config files
+      include:
+        - "*.safetensors"
+        - "*.json"
+        - "tokenizer*"
+      exclude:
+        - "*.bin"
+        - "*.h5"
+        - "*.ot"
+  version: "3.1"
+  storage:
+    storageClass: local-path
+    size: 20Gi
+  # Ollama-style Modelfile configuration
+  modelfile:
+    # Override the HUGGINGFACE_PATH comment (defaults to source.huggingFace.repoId)
+    huggingFacePath: "huggingface.co/meta-llama/Llama-3.1-8B-Instruct"
+    # Override the FROM directive (defaults to /models)
+    from: "/models"
+    template: |
+      {{ if .System }}<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+      {{ .System }}<|eot_id|>{{ end }}{{ if .Prompt }}<|start_header_id|>user<|end_header_id|}
+
+      {{ .Prompt }}<|eot_id|>{{ end }}<|start_header_id|>assistant<|end_header_id|>
+
+      {{ .Response }}<|eot_id|>
+    system: "You are a helpful AI assistant."
+    parameters:
+      temperature: "0.7"
+      topP: "0.9"
+      topK: 40
+      numCtx: 8192
+      stop:
+        - "<|eot_id|>"
+        - "<|end_of_text|>"

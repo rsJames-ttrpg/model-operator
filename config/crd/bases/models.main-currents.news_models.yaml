@@ -58,6 +58,58 @@ spec:
                   For HuggingFace: key "HF_TOKEN"
                   For S3: keys "AWS_ACCESS_KEY_ID" and "AWS_SECRET_ACCESS_KEY"
                 type: string
+              modelfile:
+                description: Modelfile defines Ollama-style configuration (template,
+                  system prompt, parameters)
+                properties:
+                  from:
+                    description: |-
+                      From overrides the FROM directive in the Modelfile
+                      If not set, defaults to "/models"
+                    type: string
+                  huggingFacePath:
+                    description: |-
+                      HuggingFacePath sets the HUGGINGFACE_PATH comment in the Modelfile
+                      If not set, auto-generated from source.huggingFace.repoId
+                    type: string
+                  parameters:
+                    description: Parameters are model inference parameters
+                    properties:
+                      numCtx:
+                        description: NumCtx context window size
+                        type: integer
+                      numGpu:
+                        description: NumGPU number of GPU layers to offload
+                        type: integer
+                      repeatPenalty:
+                        description: RepeatPenalty penalizes repetition (1.0 = no
+                          penalty)
+                        type: string
+                      seed:
+                        description: Seed for reproducibility (-1 for random)
+                        type: integer
+                      stop:
+                        description: Stop sequences that halt generation
+                        items:
+                          type: string
+                        type: array
+                      temperature:
+                        description: Temperature controls randomness (0.0-2.0)
+                        type: string
+                      topK:
+                        description: TopK limits token selection to top K options
+                        type: integer
+                      topP:
+                        description: TopP nucleus sampling parameter (0.0-1.0)
+                        type: string
+                    type: object
+                  system:
+                    description: System is the system prompt
+                    type: string
+                  template:
+                    description: Template is the prompt template for the model
+                    type: string
+                type: object
               nodeSelector:
                 additionalProperties:
                   type: string
@@ -66,9 +118,56 @@ spec:
               source:
                 description: Source defines where to download the model from
                 properties:
+                  git:
+                    description: Git source for Git repositories (with optional LFS
+                      support)
+                    properties:
+                      depth:
+                        default: 1
+                        description: Depth for shallow clone (0 = full clone)
+                        type: integer
+                      exclude:
+                        description: Exclude patterns to remove after checkout (e.g.,
+                          ["*.bin", "*.h5"])
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        description: |-
+                          Include patterns for sparse checkout (e.g., ["*.safetensors", "config.json"])
+                          Uses git sparse-checkout with cone mode disabled for glob support
+                        items:
+                          type: string
+                        type: array
+                      lfs:
+                        default: true
+                        description: LFS enables Git LFS for large file downloads
+                        type: boolean
+                      ref:
+                        default: main
+                        description: Ref is the git reference (branch, tag, or commit)
+                        type: string
+                      url:
+                        description: URL is the Git repository URL
+                        type: string
+                    required:
+                    - url
+                    type: object
                   huggingFace:
                     description: HuggingFace source configuration
                     properties:
+                      exclude:
+                        description: Exclude patterns for files to skip (e.g., ["*.bin",
+                          "*.h5"])
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        description: Include patterns for files to download (e.g.,
+                          ["*.safetensors", "*.json"])
+                        items:
+                          type: string
+                        type: array
                       repoId:
                         description: RepoID is the HuggingFace repository ID (e.g.,
                           "meta-llama/Llama-3.1-8B-Instruct")

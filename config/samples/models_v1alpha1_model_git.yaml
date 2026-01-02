@@ -1,0 +1,28 @@
+apiVersion: models.main-currents.news/v1alpha1
+kind: Model
+metadata:
+  name: llama-git
+  namespace: default
+spec:
+  source:
+    git:
+      url: https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct
+      ref: main
+      lfs: true      # Enable Git LFS (default: true)
+      depth: 1       # Shallow clone depth (default: 1, 0 = full clone)
+      # Sparse checkout - only download matching files
+      include:
+        - "*.safetensors"
+        - "*.json"
+        - "tokenizer*"
+      # Delete these patterns after checkout
+      exclude:
+        - "*.bin"
+        - "*.h5"
+  version: "3.1"
+  storage:
+    storageClass: local-path
+    size: 20Gi
+  # Optional: for private repos
+  # credentialsSecret: git-credentials
+  # Secret should have keys: GIT_USERNAME, GIT_PASSWORD
